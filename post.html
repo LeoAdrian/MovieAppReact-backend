@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Test POST request</title>
+  </head>
+  <body>
+    <button>Watch movie</button>
+  </body>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:8000');
+  </script>
+  <script>
+    document.querySelector('button').addEventListener('click', function(ev){
+      // $.post("http://localhost:8000/",{torrent: `Kimi no na wa 2016`},function(){
+      //   console.log('Data was sent to the server');
+      // });
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      fetch('http://localhost:8000', {
+                method: 'POST',
+                body: JSON.stringify({torrent: `Kimi no na wa 2016`}),
+                headers: new Headers({
+                  'Content-Type': 'application/json'
+                })
+              })
+});
+  </script>
+</html>
