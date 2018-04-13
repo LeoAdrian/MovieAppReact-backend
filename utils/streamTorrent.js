@@ -1,38 +1,24 @@
-function streamTorrent (result,path, fs, res){
-  var file = path.resolve(__dirname,result.name);
-  fs.stat(file, function(err, stats) {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        // 404 Error if file not found
-        return res.sendStatus(404);
-      }
-    res.end(err);
-    }
-    var range = req.headers.range;
-    if (!range) {
-     // 416 Wrong range
-     return res.sendStatus(416);
-    }
-    var positions = range.replace(/bytes=/, "").split("-");
-    var start = parseInt(positions[0], 10);
-    var total = stats.size;
-    var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
-    var chunksize = (end - start) + 1;
-
-    res.writeHead(206, {
-      "Content-Range": "bytes " + start + "-" + end + "/" + total,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
-      "Content-Type": "video/mp4"
-    });
-
-    var stream = fs.createReadStream(file, { start: start, end: end })
-      .on("open", function() {
-        stream.pipe(res);
-      }).on("error", function(err) {
-        res.end(err);
-      });
-  });
+function streamTorrent (result,parseRange, fs, res,req){
+  let path = result.name
+  const stat = fs.statSync(path)
+  const fileSize = stat.size
+  const ranges = parseRange(result.length, req.headers.range, { combine: true });
+  if (ranges === -1) {
+      // 416 Requested Range Not Satisfiable
+      res.statusCode = 416;
+      return res.end();
+    } else if (ranges === -2 || ranges.type !== 'bytes' || ranges.length > 1) {
+      // 200 OK requested range malformed or multiple ranges requested, stream entire video
+      if (req.method !== 'GET') return res.end();
+      result.createReadStream().pipe(res);
+    } else {
+      // 206 Partial Content valid range requested
+      const range = ranges[0];
+      res.statusCode = 206;
+      res.setHeader('Content-Length', 1 + range.end - range.start);
+      res.setHeader('Content-Range', `bytes ${range.start}-${range.end}/${result.length}`)
+      return fs.createReadStream(path).pipe(res)
+  }
 }
 
 module.exports = streamTorrent;
