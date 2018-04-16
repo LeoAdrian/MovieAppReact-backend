@@ -18,6 +18,7 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
+
 const torrentSearch = new TorrentSearchApi();
 torrentSearch.enableProvider('1337x')
 
@@ -27,14 +28,27 @@ const io = require('socket.io')(server);
 
 app.post('/', function(req,res){
   let name = req.body.torrent;
+  let ready = true;
+  let checkStatus = setInterval(() => {
+    if(app.get('downloadGlobal') > 3){
+        res.status(200).json(ready);
+      clearInterval(checkStatus);
+    }
+  },1000)
   getMagnet(name, torrentSearch, app)
   .then(magnet => downloadTorrent(magnet, torrentStream, fs, app));
+    // if(app.get('downloadGlobal') > 5){
+
+    // }
 })
 
 
-app.get('/', function(req,res,next){
-  res.sendFile(__dirname + '/views/index.html');
-})
+
+
+app.get('/', function (req, res){
+    res.sendFile(__dirname + '/views/index.html');
+});
+
 
 io.on('connection', function(socket){
   console.log('A client connected');
@@ -50,7 +64,7 @@ io.on('connection', function(socket){
         fs.unlink(movie, function(err){
           if(err) {
             if(err.code === 'ENOENT'){
-              console.log('Movie wasn\'t found on the disk.')
+              console.log('Movie was not found on the disk.')
             }
           };
           console.log('Movie was deleted');

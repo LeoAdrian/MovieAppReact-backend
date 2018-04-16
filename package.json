@@ -18,5 +18,8 @@
     "socket.io": "^2.0.4",
     "torrent-search-api": "^1.0.26",
     "torrent-stream": "^1.0.3"
+  },
+  "devDependencies": {
+    "ejs": "^2.5.8"
   }
 }
