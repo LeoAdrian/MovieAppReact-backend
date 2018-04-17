@@ -30,7 +30,7 @@ app.post('/', function(req,res){
   let name = req.body.torrent;
   let ready = true;
   let checkStatus = setInterval(() => {
-    if(app.get('downloadGlobal') > 3){
+    if(app.get('downloadGlobal') > 7){
         res.status(200).json(ready);
       clearInterval(checkStatus);
     }
@@ -54,6 +54,7 @@ io.on('connection', function(socket){
   console.log('A client connected');
   socket.on('disconnect', function(){
     console.log('Client disconnected');
+    app.set('downloadGlobal', 0);
     app.get('engine').destroy(function(){console.log('Engine destroyed')});
     // Getting the name of the movie that will be deleted
 
