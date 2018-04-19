@@ -16,31 +16,48 @@
   }
 
   body{
-    width:70%;
+    width:100%;
     margin:0, auto;
   }
 
-  p {
-    padding-left: 30%;
-    margin-top:5%;
+  video {
+    /* padding-left: 30%;
+    margin-top:5%; */
+    /* position:relative;
+    left:50%;
+    transform:translateX(-50%); */
 }
 
   h1 {
     color:white;
   }
-
+/*
   video {
     width:800px;
-  }
+  } */
   </style>
+
+
+  <link href="http://vjs.zencdn.net/6.6.3/video-js.css" rel="stylesheet">
+
+    <!-- If you'd like to support IE8 -->
+    <script src="http://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+
 </head>
 <body>
+<!--
+<video  autoplay controls onerror="failed(event)" data-setup='{ "techOrder": ["vlc"] }' name = "media">
+  <source  src="mov_bbb.mp4" type="video/mp4">
+</video> -->
 
-<h1>Video stream</h1>
-
-<p><video  autoplay controls onerror="failed(event)" >
-  <source  src="http://localhost:8000/video" type="video/mp4">
-</video></p>
+<video id="my-video" class="video-js" controls preload="auto" width="640" height="264" data-setup='{}' name = "media">
+    <source src="http://localhost:8000/video" type='video/mp4'>
+    <source src="http://localhost:8000/video" type='video/webm'>
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a web browser that
+      <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+    </p>
+  </video>
 
 <script type="text/javascript">
 function failed(e) {
@@ -66,6 +83,7 @@ switch (e.target.error.code) {
 </script>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="http://vjs.zencdn.net/6.6.3/video.js"></script>
 <script>
   const socket = io('http://localhost:8000');
 </script>

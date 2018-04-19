@@ -10,6 +10,8 @@ const streamTorrent  = require('./utils/streamTorrent');
 const TorrentSearchApi = require('torrent-search-api');
 const fs = require('fs');
 const path = require('path');
+const cmd = require('node-cmd');
+var child_process = require('child_process');
 
 app.use(bodyParser.urlencoded({
   extended: true
@@ -31,7 +33,11 @@ app.post('/', function(req,res){
   let ready = true;
   let checkStatus = setInterval(() => {
     if(app.get('downloadGlobal') > 7){
-        res.status(200).json(ready);
+      let cmdID = 'cmd';
+      child_process.execSync(`start ${cmdID} /K start vlc ${app.get('movieName')}`, function(){
+        child_process.execSync(`taskkill \IM ${cmdID}`);
+      });
+      res.status(200).json(ready);
       clearInterval(checkStatus);
     }
   },1000)
@@ -42,13 +48,23 @@ app.post('/', function(req,res){
     // }
 })
 
-
-
-
 app.get('/', function (req, res){
     res.sendFile(__dirname + '/views/index.html');
 });
 
+// let searchMovie = setInterval(function() {
+//   // cmd.get('which bash.exe', function(err,data,stderr){
+//   //   if(err){
+//   //     console.log('Something went wrong');
+//   //   }else {
+//   //     console.log('Programm started: \n' + data );
+//   //   }
+//   // });
+//   if(app.get('downloadGlobal') > 7){
+//
+//     clearInterval(searchMovie);
+//   }
+// },4000);
 
 io.on('connection', function(socket){
   console.log('A client connected');
@@ -78,9 +94,9 @@ io.on('connection', function(socket){
   })
 })
 
-app.get('/video', function(req,res){
-  streamTorrent(app.get('file'),parseRange, fs, res,req);
-})
+// app.get('/video', function(req,res){
+//   streamTorrent(app.get('file'),parseRange, fs, res,req);
+// })
 
 
 
