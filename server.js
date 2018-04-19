@@ -33,9 +33,8 @@ app.post('/', function(req,res){
   let ready = true;
   let checkStatus = setInterval(() => {
     if(app.get('downloadGlobal') > 7){
-      let cmdID = 'cmd';
-      child_process.execSync(`start ${cmdID} /K start vlc ${app.get('movieName')}`, function(){
-        child_process.execSync(`taskkill \IM ${cmdID}`);
+      child_process.exec(`start vlc ${app.get('movieName')}`, function(){
+        console.log('Movie was opened in VLC');
       });
       res.status(200).json(ready);
       clearInterval(checkStatus);
@@ -52,19 +51,40 @@ app.get('/', function (req, res){
     res.sendFile(__dirname + '/views/index.html');
 });
 
-// let searchMovie = setInterval(function() {
-//   // cmd.get('which bash.exe', function(err,data,stderr){
-//   //   if(err){
-//   //     console.log('Something went wrong');
-//   //   }else {
-//   //     console.log('Programm started: \n' + data );
-//   //   }
-//   // });
+const openVlc = function(arg,q){
+  return new Promise (function(resolve,reject){
+    let p = child_process.exec(q, arg);
+    resolve(p);
+  })
+}
+
+// let searchMovie = setTimeout(function() {
+//   cmd.get('which bash.exe', function(err,data,stderr){
+//     if(err){
+//       console.log('Something went wrong');
+//     }else {
+//       console.log('Programm started: \n' + data );
+//     }
+//   });
 //   if(app.get('downloadGlobal') > 7){
 //
 //     clearInterval(searchMovie);
 //   }
-// },4000);
+//   const defaults = {
+//   encoding: 'utf8',
+//   timeout: 0,
+//   maxBuffer: 200 * 1024,
+//   killSignal: 'SIGTERM',
+//   cwd: null,
+//   env: null
+// };
+//   openVlc(defaults,'start cmd.exe /K start vlc').then((p) => {
+//     setTimeout(function(){
+//       child_process.exec(`taskill /IM ${p.pid}`);
+//     },2000);
+//   });
+//   child_process.exec('start vlc');
+// },2000);
 
 io.on('connection', function(socket){
   console.log('A client connected');
