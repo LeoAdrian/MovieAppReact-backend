@@ -33,8 +33,12 @@ app.post('/', function(req,res){
   let ready = true;
   let checkStatus = setInterval(() => {
     if(app.get('downloadGlobal') > 7){
-      child_process.exec(`start vlc ${app.get('movieName')}`, function(){
-        console.log('Movie was opened in VLC');
+      child_process.exec(`start vlc ${'"'+app.get('movieName')+'"'}`, function(error, stdout, stderr){
+        if (error){
+          console.error(`Child_process error: ${error}`);
+          return;
+        }
+        console.log(`Movie was opened in VLC`);
       });
       res.status(200).json(ready);
       clearInterval(checkStatus);
@@ -87,6 +91,7 @@ const openVlc = function(arg,q){
 // },2000);
 
 io.on('connection', function(socket){
+  console.log(app.get('movieName')+"");
   console.log('A client connected');
   socket.on('disconnect', function(){
     console.log('Client disconnected');
