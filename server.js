@@ -34,16 +34,22 @@ app.post('/', function(req, res) {
 	let name = req.body.torrent;
 	let ready = true;
 
-	OpenSubtitles.search({
-		sublanguageid: 'rum', // Can be an array.join, 'all', or be omitted.
-		query: 'Thor Ragnarok', // Text-based query, this is not recommended.
-		limit: 'all',
-		gzip: true // returns url to gzipped subtitles, defaults to false
-	}).then(subtitles => console.log(subtitles));
+	// let subtitleName = name.split(' ');
+	// subtitleName.length -= 2;
+	// var finalName = subtitleName.join(' ');
+	// console.log(finalName);
+
+	// OpenSubtitles.search({
+	// 	sublanguageid: 'rum', // Can be an array.join, 'all', or be omitted.
+	// 	query: finalName, // Text-based query, this is not recommended.
+	// 	// imdbid:'tt3501632'
+	// 	limit: '5',
+	// 	gzip: true // returns url to gzipped subtitles, defaults to false
+	// }).then(subtitles => console.log(subtitles));
 
 	let checkStatus = setInterval(() => {
 		if (app.get('downloadGlobal') > 5) {
-			child_process.exec(
+			let vlc = child_process.exec(
 				`start vlc ${'"' + app.get('movieName') + '"'}`,
 				function(error, stdout, stderr) {
 					if (error) {
@@ -53,7 +59,7 @@ app.post('/', function(req, res) {
 					console.log(`Movie was opened in VLC`);
 				}
 			);
-			console.log('Ready on server: ' + ready);
+			app.set('pID', vlc.pid);
 			res.status(200).json(ready);
 			clearInterval(checkStatus);
 		}
@@ -61,21 +67,18 @@ app.post('/', function(req, res) {
 	getMagnet(name, torrentSearch, app).then(magnet => {
 		downloadTorrent(magnet, torrentStream, fs, app);
 	});
-	// if(app.get('downloadGlobal') > 5){
-
-	// }
 });
 
 app.get('/', function(req, res) {
 	res.sendFile(__dirname + '/views/index.html');
 });
 
-const openVlc = function(arg, q) {
-	return new Promise(function(resolve, reject) {
-		let p = child_process.exec(q, arg);
-		resolve(p);
-	});
-};
+// const openVlc = function(arg, q) {
+// 	return new Promise(function(resolve, reject) {
+// 		let p = child_process.exec(q, arg);
+// 		resolve(p);
+// 	});
+// };
 
 // let searchMovie = setTimeout(function() {
 
